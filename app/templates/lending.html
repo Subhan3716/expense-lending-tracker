@@ -1,0 +1,127 @@
+﻿{% extends "base.html" %}
+{% block title %}Lending - Expense & Lending Tracker{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Lending Tracker</h1>
+<p class="text-muted">Add borrower email, due date, and due time. Reminder emails are sent after due time and then daily until paid.</p>
+
+<div class="card mb-4">
+    <div class="card-header fw-semibold">Add Lending Record</div>
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Person Name *</label>
+                <input type="text" class="form-control" name="person_name" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-control" name="email" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Amount *</label>
+                <input type="number" class="form-control" name="amount" min="0.01" step="0.01" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Lent Date *</label>
+                <input type="date" class="form-control" name="lent_date" value="{{ today.strftime('%Y-%m-%d') }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Due Date *</label>
+                <input type="date" class="form-control" name="due_date" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Due Time *</label>
+                <input type="time" class="form-control" name="due_time" value="{{ now.strftime('%H:%M') }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Note</label>
+                <textarea class="form-control" id="lendingNote" name="note" rows="1"></textarea>
+            </div>
+            <div class="col-12">
+                <div class="emoji-toolbar" data-target="lendingNote">
+                    <span class="emoji-label">Quick Emojis:</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="🙂">🙂</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="🙏">🙏</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="💸">💸</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="📌">📌</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="✅">✅</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="⚠️">⚠️</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="🤝">🤝</button>
+                </div>
+            </div>
+            <div class="col-12 d-grid d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">Save Lending Entry</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header fw-semibold">Borrowers</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Lent Date</th>
+                        <th>Due Date</th>
+                        <th>Due Time</th>
+                        <th>Status</th>
+                        <th class="text-end">Amount</th>
+                        <th>Last Reminder</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% if records %}
+                    {% for record in records %}
+                    {% set is_overdue = record.is_overdue %}
+                    <tr class="{% if is_overdue %}table-danger{% endif %}">
+                        <td>{{ record.person_name }}</td>
+                        <td>{{ record.email }}</td>
+                        <td>{{ record.lent_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ record.due_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ record.due_time.strftime('%H:%M') if record.due_time else '09:00' }}</td>
+                        <td>
+                            {% if record.status == 'PAID' %}
+                                <span class="badge text-bg-success">PAID</span>
+                            {% elif is_overdue %}
+                                <span class="badge text-bg-danger">OVERDUE</span>
+                            {% else %}
+                                <span class="badge text-bg-warning">UNPAID</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">{{ record.amount|currency }}</td>
+                        <td>
+                            {% if record.last_reminder_date %}
+                                {{ record.last_reminder_date.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if record.status == 'UNPAID' %}
+                            <form method="post" action="{{ url_for('main.send_reminder_now', record_id=record.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-primary mb-1">Send Reminder Now</button>
+                            </form>
+                            <form method="post" action="{{ url_for('main.mark_paid', record_id=record.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-success mb-1">Mark Paid</button>
+                            </form>
+                            {% endif %}
+                            <form method="post" action="{{ url_for('main.delete_lending', record_id=record.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger mb-1">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="9" class="text-center text-muted py-3">No lending records yet.</td></tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

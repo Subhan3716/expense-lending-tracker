@@ -1,0 +1,86 @@
+﻿{% extends "base.html" %}
+{% block title %}Expenses - Expense & Lending Tracker{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Expense Tracker</h1>
+
+<div class="card mb-4">
+    <div class="card-header fw-semibold">Add Expense</div>
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Title *</label>
+                <input type="text" class="form-control" name="title" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Category *</label>
+                <input type="text" class="form-control" name="category" placeholder="Food, Travel..." required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Amount *</label>
+                <input type="number" class="form-control" name="amount" min="0.01" step="0.01" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date *</label>
+                <input type="date" class="form-control" name="expense_date" value="{{ today.strftime('%Y-%m-%d') }}" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Note</label>
+                <textarea class="form-control" id="expenseNote" name="note" rows="2"></textarea>
+                <div class="emoji-toolbar mt-2" data-target="expenseNote">
+                    <span class="emoji-label">Quick Emojis:</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="🙂">🙂</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="🙏">🙏</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="💸">💸</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="📌">📌</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="✅">✅</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary emoji-btn" data-emoji="⚠️">⚠️</button>
+                </div>
+            </div>
+            <div class="col-12 d-grid d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">Save Expense</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header fw-semibold">All Expenses</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th class="text-end">Amount</th>
+                        <th>Note</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% if expenses %}
+                    {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense.title }}</td>
+                        <td>{{ expense.category }}</td>
+                        <td>{{ expense.expense_date.strftime('%Y-%m-%d') }}</td>
+                        <td class="text-end">{{ expense.amount|currency }}</td>
+                        <td>{{ expense.note or '-' }}</td>
+                        <td class="text-end">
+                            <form method="post" action="{{ url_for('main.delete_expense', expense_id=expense.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="6" class="text-center text-muted py-3">No expenses added yet.</td></tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+﻿{
+  "name": "Smart Expense and Lending Tracker",
+  "short_name": "ExpenseTracker",
+  "description": "Track expenses, lending, and overdue payment reminders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "/static/icons/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ]
+}

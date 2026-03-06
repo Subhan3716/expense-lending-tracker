@@ -1,0 +1,74 @@
+﻿:root {
+    --brand: #0f766e;
+    --brand-soft: #dff5f2;
+    --bg: #f5f7fb;
+}
+
+body {
+    background: linear-gradient(180deg, #f9fbff 0%, var(--bg) 100%);
+}
+
+.app-navbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.navbar-brand,
+.nav-link {
+    color: #0f172a !important;
+}
+
+.metric-card {
+    border: 0;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+}
+
+.metric-label {
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.metric-value {
+    color: var(--brand);
+    font-weight: 700;
+    font-size: 1.55rem;
+}
+
+.card {
+    border: 0;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.btn-primary {
+    background-color: var(--brand);
+    border-color: var(--brand);
+}
+
+.btn-primary:hover {
+    background-color: #0b5f58;
+    border-color: #0b5f58;
+}
+
+.emoji-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.emoji-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-right: 0.25rem;
+}
+
+.emoji-btn {
+    min-width: 2rem;
+    padding: 0.1rem 0.4rem;
+    line-height: 1.2;
+}

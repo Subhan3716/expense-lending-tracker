@@ -1,0 +1,118 @@
+﻿{% extends "base.html" %}
+{% block title %}Dashboard - Expense & Lending Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h1 class="h3 mb-0">Dashboard</h1>
+    <small class="text-muted">Now: {{ now.strftime('%Y-%m-%d %H:%M') }}</small>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="card-body">
+                <div class="metric-label">Spent Today</div>
+                <div class="metric-value">{{ today_total|currency }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="card-body">
+                <div class="metric-label">Spent This Month</div>
+                <div class="metric-value">{{ month_total|currency }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="card-body">
+                <div class="metric-label">Pending Lending</div>
+                <div class="metric-value">{{ pending_lending_total|currency }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="card-body">
+                <div class="metric-label">Overdue Borrowers</div>
+                <div class="metric-value">{{ overdue_count }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header fw-semibold">Category Spend</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if category_totals %}
+                            {% for category, total in category_totals %}
+                            <tr>
+                                <td>{{ category }}</td>
+                                <td class="text-end">{{ total|currency }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="2" class="text-center text-muted py-3">No expenses yet.</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header fw-semibold">Recent Lending Entries</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Due</th>
+                                <th>Status</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% if recent_lending %}
+                            {% for record in recent_lending %}
+                            <tr>
+                                <td>{{ record.person_name }}</td>
+                                <td>{{ record.due_date.strftime('%Y-%m-%d') }} {{ record.due_time.strftime('%H:%M') if record.due_time else '09:00' }}</td>
+                                <td>
+                                    {% if record.status == 'PAID' %}
+                                        <span class="badge text-bg-success">PAID</span>
+                                    {% elif record.is_overdue %}
+                                        <span class="badge text-bg-danger">OVERDUE</span>
+                                    {% else %}
+                                        <span class="badge text-bg-warning">UNPAID</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">{{ record.amount|currency }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="4" class="text-center text-muted py-3">No lending records yet.</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
