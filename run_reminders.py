@@ -1,5 +1,5 @@
-﻿from app import create_app
-from app.reminders import run_due_reminders
+from tracker import create_app
+from tracker.reminders import run_due_reminders
 
 
 if __name__ == "__main__":
