@@ -35,7 +35,18 @@ def _normalized_database_url(raw_url):
 def create_app():
     load_dotenv()
 
-    app = Flask(__name__, instance_relative_config=True)
+    instance_path = None
+    if os.getenv("VERCEL"):
+        instance_path = os.path.join("/tmp", "instance")
+
+    if instance_path:
+        app = Flask(
+            __name__,
+            instance_relative_config=True,
+            instance_path=instance_path,
+        )
+    else:
+        app = Flask(__name__, instance_relative_config=True)
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
 
     raw_db_url = os.getenv("DATABASE_URL", "sqlite:///expense_lending.db")
@@ -53,7 +64,11 @@ def create_app():
     app.config["REMINDER_INTERVAL_HOURS"] = int(os.getenv("REMINDER_INTERVAL_HOURS", "1"))
     app.config["ENABLE_SCHEDULER"] = _as_bool(os.getenv("ENABLE_SCHEDULER", "1"), True)
 
-    os.makedirs(app.instance_path, exist_ok=True)
+    try:
+        os.makedirs(app.instance_path, exist_ok=True)
+    except OSError:
+        # Vercel serverless filesystem can be read-only in /var/task.
+        pass
 
     db.init_app(app)
     app.register_blueprint(main_bp)
