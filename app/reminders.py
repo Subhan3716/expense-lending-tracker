@@ -1,5 +1,5 @@
 ﻿import os
-from datetime import datetime, time
+from datetime import datetime
 
 from apscheduler.triggers.interval import IntervalTrigger
 
@@ -17,12 +17,6 @@ def _is_due_for_reminder(record, now):
 
     today = now.date()
     if record.last_reminder_date == today:
-        return False
-
-    due_time = record.due_time or time(9, 0)
-
-    # After first reminder, send from due-time onward each next day.
-    if record.last_reminder_date is not None and now.time() < due_time:
         return False
 
     return True

@@ -1,13 +1,15 @@
 ﻿import re
 from datetime import date, datetime
+import os
 from decimal import Decimal, InvalidOperation
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from sqlalchemy import func
 
 from .extensions import db
 from .mailer import send_reminder_email
 from .models import Expense, LentRecord
+from .reminders import run_due_reminders
 
 
 main_bp = Blueprint("main", __name__)
@@ -239,3 +241,16 @@ def delete_lending(record_id):
     db.session.commit()
     flash("Lending record deleted.", "success")
     return redirect(url_for("main.lending"))
+
+
+@main_bp.route("/api/cron", methods=["GET", "POST"])
+def cron_reminders():
+    secret = os.getenv("CRON_SECRET", "").strip()
+    if secret:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header != f"Bearer {secret}":
+            return jsonify({"status": "unauthorized"}), 401
+
+    app = current_app._get_current_object()
+    sent = run_due_reminders(app)
+    return jsonify({"status": "ok", "sent": sent})

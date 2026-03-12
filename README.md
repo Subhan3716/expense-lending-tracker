@@ -16,47 +16,31 @@ python run.py
 ```
 Open: `http://127.0.0.1:5000`
 
-## Public Deployment (Recommended: Render)
-
-### Why Render?
-- Easy UI for beginners
-- Supports Flask web apps
-- Managed PostgreSQL available
-- Has Cron Jobs for reminder automation
+## Public Deployment (Vercel)
 
 ### Deploy Architecture
-1. Web Service (`gunicorn run:app`) for app UI/API
-2. PostgreSQL database for persistent data
-3. Cron Job (`python run_reminders.py`) for scheduled reminders
-
-## Step-by-step (Exact)
+1. Vercel web app for UI/API
+2. External PostgreSQL database (Neon is free)
+3. Daily Cron on Vercel to call `/api/cron`
 
 ### 1) Push project to GitHub
 1. Create a new GitHub repo
 2. Upload this project files
 
-### 2) Create Render account
-1. Open `https://render.com`
-2. Sign up/login
-3. Connect GitHub account
+### 2) Create PostgreSQL on Neon
+1. Open `https://neon.tech`
+2. Create a free project
+3. Copy the `DATABASE_URL` (it starts with `postgresql://`)
 
-### 3) Create PostgreSQL on Render
-1. Click `New +` -> `PostgreSQL`
-2. Name: `expense-db` (any name)
-3. Create database
-4. Keep this page open (you will need connection URL)
+### 3) Create Vercel project
+1. Open `https://vercel.com`
+2. Import your GitHub repo
+3. Deploy
 
-### 4) Create Web Service
-1. Click `New +` -> `Web Service`
-2. Select your GitHub repo
-3. Runtime: `Python`
-4. Build Command:
-   `pip install -r requirements.txt`
-5. Start Command:
-   `gunicorn run:app`
-6. Add env vars:
+### 4) Add environment variables in Vercel
+Add these variables in Vercel project settings:
 - `SECRET_KEY` = any random long text
-- `DATABASE_URL` = Render PostgreSQL Internal Database URL
+- `DATABASE_URL` = Neon `DATABASE_URL`
 - `SMTP_HOST=smtp.gmail.com`
 - `SMTP_PORT=587`
 - `SMTP_USER=yourgmail@gmail.com`
@@ -65,22 +49,17 @@ Open: `http://127.0.0.1:5000`
 - `SMTP_USE_TLS=1`
 - `SMTP_USE_SSL=0`
 - `ENABLE_SCHEDULER=0`
-7. Click `Create Web Service`
 
-### 5) Create Cron Job for reminders
-1. Click `New +` -> `Cron Job`
-2. Select same repo
-3. Build Command:
-   `pip install -r requirements.txt`
-4. Start Command:
-   `python run_reminders.py`
-5. Schedule: every 1 hour
-6. Add same env vars as Web Service
-7. Click `Create Cron Job`
-
-### 6) Open your public app
-- Use your Render Web Service URL
-- Anyone can access it
+### 5) Cron schedule
+The repo includes `vercel.json` with a daily cron that calls `/api/cron`:
+```json
+{
+  "crons": [
+    { "path": "/api/cron", "schedule": "0 0 * * *" }
+  ]
+}
+```
+Cron schedules are in UTC and run once per day on the free plan.
 
 ## Important Production Notes
 - Never use SQLite in cloud deployment. Use PostgreSQL (`DATABASE_URL`).
